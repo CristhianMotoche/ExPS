@@ -3,7 +3,11 @@ module Main where
 import Prelude (Unit, show, ($), bind)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
-import Tree
+import Tree ( createIntTree
+    , countLeaves
+    , treeToList
+    , treeToArray
+    , Tree(..))
 
 main :: forall t. Eff ( console :: CONSOLE | t ) Unit
 main = do
