@@ -30,5 +30,7 @@ treeToArray (Leaf l x r) = treeToArray l ++ [ x ] ++ treeToArray r
 
 instance showTree :: (Show a) => Show (Tree a) where
     show (Leaf l x r) =
-        "T: " ++ show x ++ "(" ++ (show l) ++ ")" ++ "(" ++ (show r) ++ ")"
+        "T: " ++ show x ++
+            "(" ++ (show l) ++ ")" ++
+            "(" ++ (show r) ++ ")"
     show Empty = "-"

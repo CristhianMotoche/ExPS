@@ -2,7 +2,13 @@ label {
     margin: 20px;
 }
 
-div#Output {
+div.six {
     border-style: solid;    
     border-color: red;
+    height: 200px;
+    text-align: center;
+}
+
+div#Output {
+    font-size: 100px;
 }

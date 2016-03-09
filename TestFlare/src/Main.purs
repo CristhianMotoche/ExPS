@@ -4,10 +4,16 @@ import Prelude
 import Control.Monad.Eff
 import Flare
 
-f :: forall e. UI e Int
-f = (int "A" 6) * (int "B" 7)
+fib :: Int -> Int
+fib n
+    | n <= 0 = 1
+    | n == 1 = 1
+    | otherwise = fib (n-1) + fib (n-2)
+
+fib' :: forall e. UI e Int
+fib' = fib <$> (int "Fibonnaci" 3)
 
 ui :: forall eff. UI eff String
-ui = show <$> f
+ui = show <$> fib'
 
 main = runFlare "Multiplication" "Output" ui

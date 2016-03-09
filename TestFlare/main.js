@@ -4,28 +4,6 @@ var PS = { };
   /* global exports */
   "use strict";
 
-  exports.concatArray = function (xs) {
-    return function (ys) {
-      return xs.concat(ys);
-    };
-  };
-
-  //- Semiring -------------------------------------------------------------------
-
-  exports.intAdd = function (x) {
-    return function (y) {
-      /* jshint bitwise: false */
-      return x + y | 0;
-    };
-  };
-
-  exports.intMul = function (x) {
-    return function (y) {
-      /* jshint bitwise: false */
-      return x * y | 0;
-    };
-  };
-
   //- Bounded --------------------------------------------------------------------
 
   exports.topInt = 2147483647;
@@ -68,24 +46,12 @@ var PS = { };
       this["__superclass_Prelude.Applicative_0"] = __superclass_Prelude$dotApplicative_0;
       this["__superclass_Prelude.Bind_1"] = __superclass_Prelude$dotBind_1;
   };
-  var Semigroup = function (append) {
-      this.append = append;
-  };
-  var Semiring = function (add, mul, one, zero) {
-      this.add = add;
-      this.mul = mul;
-      this.one = one;
-      this.zero = zero;
-  };
   var Bounded = function (bottom, top) {
       this.bottom = bottom;
       this.top = top;
   };
   var Show = function (show) {
       this.show = show;
-  };
-  var zero = function (dict) {
-      return dict.zero;
   };                                                                           
   var unit = {};
   var top = function (dict) {
@@ -94,31 +60,21 @@ var PS = { };
   var showInt = new Show($foreign.showIntImpl);
   var show = function (dict) {
       return dict.show;
-  };                                                                            
-  var semiringInt = new Semiring($foreign.intAdd, $foreign.intMul, 1, 0);
+  };                                                                     
   var semigroupoidFn = new Semigroupoid(function (f) {
       return function (g) {
           return function (x) {
               return f(g(x));
           };
       };
-  });
-  var semigroupArray = new Semigroup($foreign.concatArray);
+  });                 
   var pure = function (dict) {
       return dict.pure;
   };
   var $$return = function (dictApplicative) {
       return pure(dictApplicative);
-  };                   
-  var one = function (dict) {
-      return dict.one;
   };
-  var mul = function (dict) {
-      return dict.mul;
-  };
-  var $times = function (dictSemiring) {
-      return mul(dictSemiring);
-  };
+  var otherwise = true;
   var map = function (dict) {
       return dict.map;
   };
@@ -177,14 +133,9 @@ var PS = { };
               });
           };
       };
-  }; 
-  var add = function (dict) {
-      return dict.add;
   };
   exports["Show"] = Show;
   exports["Bounded"] = Bounded;
-  exports["Semiring"] = Semiring;
-  exports["Semigroup"] = Semigroup;
   exports["Monad"] = Monad;
   exports["Bind"] = Bind;
   exports["Applicative"] = Applicative;
@@ -195,15 +146,9 @@ var PS = { };
   exports["show"] = show;
   exports["bottom"] = bottom;
   exports["top"] = top;
-  exports["*"] = $times;
-  exports["one"] = one;
-  exports["mul"] = mul;
-  exports["zero"] = zero;
-  exports["add"] = add;
   exports["<>"] = $less$greater;
   exports["append"] = append;
   exports["ap"] = ap;
-  exports["return"] = $$return;
   exports["bind"] = bind;
   exports["liftA1"] = liftA1;
   exports["pure"] = pure;
@@ -213,12 +158,11 @@ var PS = { };
   exports["map"] = map;
   exports["id"] = id;
   exports["compose"] = compose;
+  exports["otherwise"] = otherwise;
   exports["const"] = $$const;
   exports["unit"] = unit;
   exports["semigroupoidFn"] = semigroupoidFn;
   exports["categoryFn"] = categoryFn;
-  exports["semigroupArray"] = semigroupArray;
-  exports["semiringInt"] = semiringInt;
   exports["boundedInt"] = boundedInt;
   exports["showInt"] = showInt;;
  
@@ -234,16 +178,6 @@ var PS = { };
           };
       };
   };
-  var lift2 = function (dictApply) {
-      return function (f) {
-          return function (a) {
-              return function (b) {
-                  return Prelude["<*>"](dictApply)(Prelude["<$>"](dictApply["__superclass_Prelude.Functor_0"]())(f)(a))(b);
-              };
-          };
-      };
-  };
-  exports["lift2"] = lift2;
   exports["*>"] = $times$greater;;
  
 })(PS["Control.Apply"] = PS["Control.Apply"] || {});
@@ -548,20 +482,6 @@ var PS = { };
       };
     };
 
-
-  exports.applySigP =
-    function applySigP(constant) {
-      return function(fun) {
-        return function(sig) {
-          var out = constant(fun.get()(sig.get()));
-          var produce = function() { out.set(fun.get()(sig.get())); };
-          fun.subscribe(produce);
-          sig.subscribe(produce);
-          return out;
-        };
-      };
-    };
-
   exports.runSignal =
     function runSignal(sig) {
       return function() {
@@ -583,16 +503,7 @@ var PS = { };
   var Data_Maybe = PS["Data.Maybe"];                 
   var mapSig = $foreign.mapSigP($foreign.constant);
   var functorSignal = new Prelude.Functor(mapSig);
-  var applySig = $foreign.applySigP($foreign.constant);
-  var applySignal = new Prelude.Apply(function () {
-      return functorSignal;
-  }, applySig);
-  var applicativeSignal = new Prelude.Applicative(function () {
-      return applySignal;
-  }, $foreign.constant);
   exports["functorSignal"] = functorSignal;
-  exports["applySignal"] = applySignal;
-  exports["applicativeSignal"] = applicativeSignal;
   exports["runSignal"] = $foreign.runSignal;
   exports["constant"] = $foreign.constant;;
  
@@ -712,43 +623,11 @@ var PS = { };
   var $$int = function (label) {
       return createUI($foreign.cIntRange("number")(Prelude.bottom(Prelude.boundedInt))(Prelude.top(Prelude.boundedInt)))(label);
   };
-  var applyFlare = new Prelude.Apply(function () {
-      return functorFlare;
-  }, function (v) {
-      return function (v1) {
-          return new Flare(Prelude["<>"](Prelude.semigroupArray)(v.value0)(v1.value0), Prelude["<*>"](Signal.applySignal)(v.value1)(v1.value1));
-      };
-  });
-  var applyUI = new Prelude.Apply(function () {
-      return functorUI;
-  }, function (v) {
-      return function (v1) {
-          return UI(Control_Apply.lift2(Control_Monad_Eff.applyEff)(Prelude.apply(applyFlare))(v)(v1));
-      };
-  });
-  var applicativeFlare = new Prelude.Applicative(function () {
-      return applyFlare;
-  }, function (x) {
-      return new Flare([  ], Prelude.pure(Signal.applicativeSignal)(x));
-  });
-  var applicativeUI = new Prelude.Applicative(function () {
-      return applyUI;
-  }, function (x) {
-      return UI(Prelude["return"](Control_Monad_Eff.applicativeEff)(Prelude.pure(applicativeFlare)(x)));
-  });
-  var semiringUI = function (dictSemiring) {
-      return new Prelude.Semiring(Control_Apply.lift2(applyUI)(Prelude.add(dictSemiring)), Control_Apply.lift2(applyUI)(Prelude.mul(dictSemiring)), Prelude.pure(applicativeUI)(Prelude.one(dictSemiring)), Prelude.pure(applicativeUI)(Prelude.zero(dictSemiring)));
-  };
   exports["runFlare"] = runFlare;
   exports["runFlareWith"] = runFlareWith;
   exports["int"] = $$int;
   exports["functorFlare"] = functorFlare;
-  exports["applyFlare"] = applyFlare;
-  exports["applicativeFlare"] = applicativeFlare;
-  exports["functorUI"] = functorUI;
-  exports["applyUI"] = applyUI;
-  exports["applicativeUI"] = applicativeUI;
-  exports["semiringUI"] = semiringUI;;
+  exports["functorUI"] = functorUI;;
  
 })(PS["Flare"] = PS["Flare"] || {});
 (function(exports) {
@@ -757,14 +636,25 @@ var PS = { };
   var Prelude = PS["Prelude"];
   var Control_Monad_Eff = PS["Control.Monad.Eff"];
   var Flare = PS["Flare"];     
-  var render = Prelude.show(Prelude.showInt);
-  var f = Prelude["*"](Flare.semiringUI(Prelude.semiringInt))(Flare["int"]("A")(6))(Flare["int"]("B")(7));
-  var ui = Prelude["<$>"](Flare.functorUI)(render)(f);
+  var fib = function (n) {
+      if (n <= 0) {
+          return 1;
+      };
+      if (n === 1) {
+          return 1;
+      };
+      if (Prelude.otherwise) {
+          return fib(n - 1) + fib(n - 2) | 0;
+      };
+      throw new Error("Failed pattern match at Main line 8, column 1 - line 13, column 1: " + [ n.constructor.name ]);
+  };
+  var fib$prime = Prelude["<$>"](Flare.functorUI)(fib)(Flare["int"]("Fibonnaci")(3));
+  var ui = Prelude["<$>"](Flare.functorUI)(Prelude.show(Prelude.showInt))(fib$prime);
   var main = Flare.runFlare("Multiplication")("Output")(ui);
   exports["main"] = main;
   exports["ui"] = ui;
-  exports["render"] = render;
-  exports["f"] = f;;
+  exports["fib'"] = fib$prime;
+  exports["fib"] = fib;;
  
 })(PS["Main"] = PS["Main"] || {});
 
